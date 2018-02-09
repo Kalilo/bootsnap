@@ -1,3 +1,17 @@
+# 1.1.8
+
+* Don't cache YAML documents with `!ruby/object`
+* Fix cache write mode on Windows
+
+# 1.1.7
+
+* Create cache entries as 0775/0664 instead of 0755/0644
+* Better handling around cache updates in highly-parallel workloads
+
+# 1.1.6
+
+* Assortment of minor bugfixes
+
 # 1.1.5
 
 * bugfix re-release of 1.1.4

@@ -9,9 +9,10 @@ module Bootsnap
       end
 
       def test_stability
-        bundler_file = Bundler.method(:setup).source_location[0]
+        require 'time'
+        time_file    = Time.method(:rfc2822).source_location[0]
         volatile     = Path.new(__FILE__)
-        stable       = Path.new(bundler_file)
+        stable       = Path.new(time_file)
         unknown      = Path.new('/who/knows')
         lib          = Path.new(RbConfig::CONFIG['libdir']  + '/a')
         site         = Path.new(RbConfig::CONFIG['sitedir'] + '/b')
@@ -19,16 +20,16 @@ module Bootsnap
 
         Bundler.stubs(:bundle_path).returns('/bp')
 
-        assert stable.stable?
-        refute stable.volatile?
-        assert volatile.volatile?
-        refute volatile.stable?
-        assert unknown.volatile?
-        refute unknown.stable?
+        assert stable.stable?, "The stable path #{stable.path.inspect} was unexpectedly not stable."
+        refute stable.volatile?, "The stable path #{stable.path.inspect} was unexpectedly volatile."
+        assert volatile.volatile?, "The volatile path #{volatile.path.inspect} was unexpectedly not volatile."
+        refute volatile.stable?, "The volatile path #{volatile.path.inspect} was unexpectedly stable."
+        assert unknown.volatile?, "The unknown path #{unknown.path.inspect} was unexpectedly not volatile."
+        refute unknown.stable?, "The unknown path #{unknown.path.inspect} was unexpectedly stable."
 
-        assert lib.stable?
-        refute site.stable?
-        assert bundler.stable?
+        assert lib.stable?, "The lib path #{lib.path.inspect} was unexpectedly not stable."
+        refute site.stable?, "The site path #{site.path.inspect} was unexpectedly stable."
+        assert bundler.stable?, "The bundler path #{bundler.path.inspect} was unexpectedly not stable."
       end
 
       def test_non_directory?

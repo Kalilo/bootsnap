@@ -69,10 +69,15 @@ module Bootsnap
       def dump_data
         # Change contents atomically so other processes can't get invalid
         # caches if they read at an inopportune time.
-        tmp = "#{@store_path}.#{(rand * 100000).to_i}.tmp"
+        tmp = "#{@store_path}.#{Process.pid}.#{(rand * 100000).to_i}.tmp"
         FileUtils.mkpath(File.dirname(tmp))
-        File.binwrite(tmp, MessagePack.dump(@data))
+        exclusive_write = File::Constants::CREAT | File::Constants::EXCL | File::Constants::WRONLY
+        # `encoding:` looks redundant wrt `binwrite`, but necessary on windows
+        # because binary is part of mode.
+        File.binwrite(tmp, MessagePack.dump(@data), mode: exclusive_write, encoding: Encoding::BINARY)
         FileUtils.mv(tmp, @store_path)
+      rescue Errno::EEXIST
+        retry
       end
     end
   end

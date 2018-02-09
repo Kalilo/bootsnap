@@ -57,9 +57,15 @@ class CompileCacheKeyFormatTest < Minitest::Test
     actual = Bootsnap::CompileCache::Native.fetch(@tmp_dir, '/dev/null', TestHandler)
     assert_equal('NEATO /DEV/NULL', actual)
     data = File.read("#{@tmp_dir}/8c/d2d180bbd995df")
-    assert_match(%r{.{64}neato /dev/null}, data.force_encoding(Encoding::BINARY))
+    assert_equal("neato /dev/null", data.force_encoding(Encoding::BINARY)[64..-1])
     actual = Bootsnap::CompileCache::Native.fetch(@tmp_dir, '/dev/null', TestHandler)
     assert_equal('NEATO /DEV/NULL', actual)
+  end
+
+  def test_unexistent_fetch
+    assert_raises(Errno::ENOENT) do
+      Bootsnap::CompileCache::Native.fetch(@tmp_dir, '123', Bootsnap::CompileCache::ISeq)
+    end
   end
 
   private
